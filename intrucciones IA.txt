@@ -1,35 +1,158 @@
-Paso 1: Configuración de la Base de Datos (prueba)
-Vamos a crear las tablas exactamente como las has solicitado en phpMyAdmin.
+Paso 1: Configurar la Base de Datos
+Primero, crea la base de datos y las tablas.
 Abre phpMyAdmin (http://localhost/phpmyadmin).
-Crea la Base de Datos si no existe: Nombre prueba.
-Crea la tabla usuario:
-Nombre de la tabla: usuario.
-Define las columnas:
-nombre_usuario: Tipo VARCHAR, Longitud 255, Índice PRIMARY. Esta es la clave primaria, no uses auto-incremento.
-clave: Tipo VARCHAR, Longitud 255.
-rol: Tipo VARCHAR, Longitud 50.
-Haz clic en "Guardar".
-Crea la tabla comentario:
-Nombre de la tabla: comentario.
-Define las columnas:
-id_comentario: Tipo INT, Longitud 11, marca la casilla A_I (AUTO_INCREMENT) y asegúrate de que el Índice sea PRIMARY. (Usaremos A_I aquí porque es la práctica estándar para IDs de comentarios y simplifica la eliminación).
-comentario: Tipo TEXT.
-id_usu_comen: Tipo VARCHAR, Longitud 255. Importante: Debe ser VARCHAR para que coincida con nombre_usuario de la tabla usuario.
-Haz clic en "Guardar".
-¡Acción Manual! Inserta el usuario Administrador:
-Selecciona la tabla usuario y ve a la pestaña "Insertar".
-nombre_usuario: admin
-clave: adminpass (o la que prefieras, recuérdala)
-rol: admin
-Haz clic en "Continuar". Tu administrador ya existe en el sistema.
+Crea una nueva base de datos llamada bancoapellido.
+Selecciona la base de datos y ve a la pestaña SQL. Pega el siguiente código y ejecútalo.
 
-Paso 4: Cómo Probarlo
-Asegúrate de haber creado el usuario admin manualmente en phpMyAdmin.
-Ve a http://localhost/Prueba/ en tu navegador.
-Regístrate: Haz clic en el enlace "Regístrate". Crea un usuario (ej: carlos, clave 1234).
-Inicia sesión como usuario: Usa las credenciales de carlos. Serás llevado al formulario. Envía un par de comentarios.
-Cierra sesión.
-Inicia sesión como admin: Usa admin y la contraseña que le pusiste. Serás llevado al dashboard.
-Verifica: Verás los comentarios de carlos.
-Filtra: Escribe carlos en el buscador y presiona "Buscar". Solo aparecerán sus comentarios.
-Elimina: Usa el botón "Eliminar" en cualquier comentario.
+CREATE TABLE `cajeros` (
+  `usuario` varchar(50) NOT NULL PRIMARY KEY,
+  `clave` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `cajeros` (`usuario`, `clave`) VALUES
+('cajero1', '12345');
+
+CREATE TABLE `clientes` (
+  `cedula` varchar(20) NOT NULL PRIMARY KEY,
+  `nombre` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `cuentas` (
+  `id_cuenta` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `cedula_cliente` varchar(20) NOT NULL,
+  FOREIGN KEY (`cedula_cliente`) REFERENCES `clientes`(`cedula`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `transacciones` (
+  `id_transaccion` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `id_cuenta` int(11) NOT NULL,
+  `tipo` enum('Deposito','Retiro') NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
+  FOREIGN KEY (`id_cuenta`) REFERENCES `cuentas`(`id_cuenta`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+!!!!OTRA EXPLICACION!!!!!
+
+Paso 1: Crear la Base de Datos
+Abre tu navegador y ve a http://localhost/phpmyadmin.
+En el panel de la izquierda, haz clic en "Nueva".
+En el campo "Nombre de la base de datos", escribe bancoapellido.
+Deja el cotejamiento como está (usualmente utf8mb4_general_ci) y haz clic en el botón "Crear".
+
+
+Paso 2: Crear la Tabla cajeros
+
+Una vez creada la base de datos, phpMyAdmin te llevará a la pantalla para crear tu primera tabla.
+Nombre de la tabla: Escribe cajeros.
+Número de columnas: Escribe 2 y haz clic en "Continuar".
+Ahora, define las columnas:
+Primera columna:
+Nombre: usuario
+Tipo: VARCHAR
+Longitud/Valores: 50
+Índice: Selecciona PRIMARY en el menú desplegable. Se abrirá una ventana emergente, solo dale a "Continuar". Esto hará que el nombre de usuario sea único.
+Segunda columna:
+Nombre: clave
+Tipo: VARCHAR
+Longitud/Valores: 255
+Haz clic en el botón "Guardar" abajo a la derecha.
+
+
+Paso 3: Crear la Tabla clientes
+
+En el panel de la izquierda, haz clic sobre el nombre de tu base de datos (bancoapellido) para seleccionarla.
+Verás una sección que dice "Crear tabla".
+Nombre de la tabla: Escribe clientes.
+Número de columnas: Escribe 2 y haz clic en "Continuar".
+Define las columnas:
+Primera columna:
+Nombre: cedula
+Tipo: VARCHAR
+Longitud/Valores: 20
+Índice: Selecciona PRIMARY.
+Segunda columna:
+Nombre: nombre
+Tipo: VARCHAR
+Longitud/Valores: 100
+Haz clic en "Guardar".
+
+
+Paso 4: Crear la Tabla cuentas
+
+Asegúrate de que la base de datos bancoapellido esté seleccionada.
+Nombre de la tabla: Escribe cuentas.
+Número de columnas: Escribe 2 y haz clic en "Continuar".
+Define las columnas:
+Primera columna:
+Nombre: id_cuenta
+Tipo: INT
+Longitud/Valores: 11
+Índice: Selecciona PRIMARY.
+A_I: Marca la casilla de verificación que dice A_I (AUTO_INCREMENT). Esto hará que cada cuenta nueva tenga un ID numérico único y automático.
+Segunda columna:
+Nombre: cedula_cliente
+Tipo: VARCHAR
+Longitud/Valores: 20
+Haz clic en "Guardar".
+
+
+Paso 5: Crear la Tabla transacciones
+
+Asegúrate de que la base de datos bancoapellido esté seleccionada.
+Nombre de la tabla: Escribe transacciones.
+Número de columnas: Escribe 5 y haz clic en "Continuar".
+Define las columnas:
+Primera columna:
+Nombre: id_transaccion
+Tipo: INT
+Longitud/Valores: 11
+Índice: PRIMARY
+A_I: Marca la casilla A_I (AUTO_INCREMENT).
+Segunda columna:
+Nombre: id_cuenta
+Tipo: INT
+Longitud/Valores: 11
+Tercera columna:
+Nombre: tipo
+Tipo: ENUM
+Longitud/Valores: Escribe exactamente esto, incluyendo las comillas simples: 'Deposito','Retiro'
+Cuarta columna:
+Nombre: monto
+Tipo: DECIMAL
+Longitud/Valores: 10,2
+Quinta columna:
+Nombre: fecha
+Tipo: TIMESTAMP
+Predeterminado: En el menú desplegable, selecciona CURRENT_TIMESTAMP. Esto registrará la fecha y hora actual automáticamente.
+Haz clic en "Guardar".
+
+
+Paso 6 (Opcional pero recomendado): Conectar las Tablas (Claves Foráneas)
+
+Esto asegura que no puedas crear una transacción para una cuenta que no existe, o una cuenta para un cliente que no existe.
+Conectar cuentas con clientes:
+En el panel izquierdo, haz clic en la tabla cuentas.
+Ve a la pestaña "Estructura".
+Debajo de la lista de columnas, busca y haz clic en "Vista de relaciones".
+Haz clic en "Añadir restricción".
+Configura los campos:
+Columna: Elige cedula_cliente (la columna de la tabla cuentas).
+Base de datos: bancoapellido (ya debería estar seleccionada).
+Tabla: Elige clientes.
+Columna: Elige cedula (la columna de la tabla clientes).
+ON DELETE: Selecciona CASCADE.
+ON UPDATE: Selecciona CASCADE.
+Haz clic en "Guardar".
+Conectar transacciones con cuentas:
+En el panel izquierdo, haz clic en la tabla transacciones.
+Ve a la pestaña "Estructura" y luego a "Vista de relaciones".
+Haz clic en "Añadir restricción".
+Configura los campos:
+Columna: Elige id_cuenta (de la tabla transacciones).
+Base de datos: bancoapellido.
+Tabla: Elige cuentas.
+Columna: Elige id_cuenta (de la tabla cuentas).
+ON DELETE: Selecciona CASCADE.
+ON UPDATE: Selecciona CASCADE.
+Haz clic en "Guardar".
